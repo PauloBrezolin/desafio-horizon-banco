@@ -14,6 +14,7 @@ public class Pessoa implements Serializable {
 	private String nome;
 	private String telefone;
 	private String cpf;
+	
 	public Pessoa() {
 	}
 	public Pessoa(String nome, String telefone, String cpf) {

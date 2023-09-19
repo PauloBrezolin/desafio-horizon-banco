@@ -16,14 +16,24 @@ public class Conta implements Serializable {
     @JoinColumn(name = "pessoa_id")
     private Pessoa pessoa;
 
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int numero;
 
-    private int digito = 7;
+    private int digito;
 
-    private double saldo = 0;
+    private double saldo;
 
     private int tipoConta;
+
+    public Conta() {
+    }
+
+    public Conta( Pessoa pessoa, int numero,  int digito, double saldo, int tipoConta) {
+        this.pessoa = pessoa;
+        this.numero = numero;
+        this.digito = digito;
+        this.saldo = saldo;
+        this.tipoConta = tipoConta;
+    }
 
     public Long getId() {
         return id;
