@@ -9,7 +9,6 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.persistence.TypedQuery;
 
-import java.time.LocalDate;
 import java.util.List;
 
 public class EntityFactory {
@@ -22,12 +21,16 @@ public class EntityFactory {
         return emf.createEntityManager();
     }
 
+    /* 
+     * FUNÇÕES DE PESSOA
+     */
+
     public static boolean validarCPF(String cpf, EntityManager em) {
 
         TypedQuery<Pessoa> query = em.createQuery("SELECT p FROM Pessoa p WHERE p.cpf = :cpf", Pessoa.class);
-        query.setParameter("cpf", cpf); // seleciona pelo cpf
+        query.setParameter("cpf", cpf);
 
-        List<Pessoa> pessoas = query.getResultList(); // coloca resultado da query dentro da lista pessoas
+        List<Pessoa> pessoas = query.getResultList();
 
         if (!pessoas.isEmpty()) {
             return true;
@@ -39,9 +42,9 @@ public class EntityFactory {
     public static long getID(String cpf, EntityManager em) {
 
         TypedQuery<Pessoa> query = em.createQuery("SELECT p FROM Pessoa p WHERE p.cpf = :cpf", Pessoa.class);
-        query.setParameter("cpf", cpf); // seleciona pelo cpf
+        query.setParameter("cpf", cpf);
 
-        List<Pessoa> pessoas = query.getResultList(); // coloca resultado da query dentro da lista pessoas
+        List<Pessoa> pessoas = query.getResultList();
 
         Pessoa pessoaEncontrada = pessoas.get(0);
         long id = pessoaEncontrada.getId();
@@ -51,9 +54,9 @@ public class EntityFactory {
     public static Pessoa getPessoa(String cpf, EntityManager em) {
 
         TypedQuery<Pessoa> query = em.createQuery("SELECT p FROM Pessoa p WHERE p.cpf = :cpf", Pessoa.class);
-        query.setParameter("cpf", cpf); // seleciona pelo cpf
+        query.setParameter("cpf", cpf);
 
-        List<Pessoa> pessoas = query.getResultList(); // coloca resultado da query dentro da lista pessoas
+        List<Pessoa> pessoas = query.getResultList();
 
         Pessoa pessoaEncontrada = pessoas.get(0);
         return pessoaEncontrada;
@@ -61,13 +64,17 @@ public class EntityFactory {
 
     public static void cadastroUsuario(String nome, String telefone, String cpf, EntityManager em) {
 
-        Pessoa pessoa = new Pessoa(nome, telefone, cpf); // cria uma nova pessoa
+        Pessoa pessoa = new Pessoa(nome, telefone, cpf);
 
-        em.getTransaction().begin(); // começar transação com o banco de dados
+        em.getTransaction().begin();
         em.persist(pessoa);
-        em.getTransaction().commit(); // confirmar transacao com o banco de dados
+        em.getTransaction().commit();
         System.out.println("Usuário criado!");
     }
+
+    /* 
+     * FUNÇÕES DE CONTA
+     */
 
     public static boolean validarConta(Long pessoa_id, EntityManager em) {
 
@@ -108,7 +115,7 @@ public class EntityFactory {
         }
     }
 
-    public static boolean validatipo_conta(Long pessoa_id, int tipo_conta, EntityManager em) {
+    public static boolean validaTipoConta(Long pessoa_id, int tipo_conta, EntityManager em) {
 
         TypedQuery<Conta> query = em.createQuery(
                 "SELECT c FROM Conta c WHERE c.pessoa.id = :pessoa_id AND c.tipo_conta = :tipo_conta", Conta.class);
@@ -126,6 +133,7 @@ public class EntityFactory {
     }
 
     public static int contarContas(Long pessoa_id, EntityManager em) {
+
         TypedQuery<Conta> query = em.createQuery("SELECT c FROM Conta c WHERE c.pessoa.id = :pessoa_id", Conta.class);
         query.setParameter("pessoa_id", pessoa_id);
 
@@ -134,6 +142,7 @@ public class EntityFactory {
     }
 
     public static int getNumeroConta(Long pessoa_id, EntityManager em) {
+
         TypedQuery<Conta> query = em.createQuery("SELECT c FROM Conta c WHERE c.pessoa.id = :pessoa_id", Conta.class);
         query.setParameter("pessoa_id", pessoa_id);
 
@@ -182,7 +191,24 @@ public class EntityFactory {
         return id_conta;
     }
 
+    public static Conta getConta(int numero, EntityManager em) {
+
+        TypedQuery<Conta> query = em.createQuery("SELECT c FROM Conta c WHERE c.numero = :numero", Conta.class);
+        query.setParameter("numero", numero);
+
+        List<Conta> contas = query.getResultList();
+
+        Conta contaEncontrada = contas.get(0);
+
+        return contaEncontrada;
+    }
+
+    /* 
+    * FUNÇÕES DE TRANSFERÊNCIA
+    */
+    
     public static double consultarSaldo(int conta, EntityManager em) {
+
         TypedQuery<Conta> query = em.createQuery("SELECT c FROM Conta c WHERE c.numero = :conta", Conta.class);
         query.setParameter("conta", conta);
 
@@ -199,21 +225,12 @@ public class EntityFactory {
         Conta conta = em.find(Conta.class, id);
 
         em.getTransaction().begin();
-		conta.setSaldo(valor);
-		em.getTransaction().commit();
+        conta.setSaldo(valor);
+        em.getTransaction().commit();
     }
 
-    public static Conta getConta(int numero, EntityManager em) {
-        TypedQuery<Conta> query = em.createQuery("SELECT c FROM Conta c WHERE c.numero = :numero", Conta.class);
-        query.setParameter("numero", numero);
-
-        List<Conta> contas = query.getResultList();
-
-        Conta contaEncontrada = contas.get(0);
-
-        return contaEncontrada;
-    }
     public static void registrarTrasferencia(Conta conta_origem, Conta conta_destino, double valor, String data, EntityManager em) {
+        
         Transferencia Transferencia = new Transferencia(conta_origem, conta_destino, valor, data);
 
         em.getTransaction().begin();

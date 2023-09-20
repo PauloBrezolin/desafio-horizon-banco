@@ -22,11 +22,14 @@ public class Main {
 
     public static void main(String[] args) {
 
+        boolean login_sucesso = false;
         String cpf = solicitarCPF();
         setCpf(cpf);
 
+        while (!login_sucesso)
         if (LoginUsuario()) {
             if (LoginConta()) {
+                login_sucesso = true;
                 int conta = EscolherConta();
                 Transacoes(conta);
             } else {
@@ -118,7 +121,7 @@ public class Main {
             if (tipo_conta != 1 && tipo_conta != 2) {
                 System.out.println("Tipo de conta inválido! Você deve digitar 1 ou 2.");
             }
-        } while ((tipo_conta != 1 && tipo_conta != 2) || (!EntityFactory.validatipo_conta(pessoa_id, tipo_conta, em)));
+        } while ((tipo_conta != 1 && tipo_conta != 2) || (!EntityFactory.validaTipoConta(pessoa_id, tipo_conta, em)));
 
         do {
             numero = gerador.nextInt(10000000);
@@ -150,8 +153,8 @@ public class Main {
             if (tipo_conta == 1) {
                 do {
                     System.out.println("Você já tem uma conta corrente, deseja criar uma conta poupança?");
-                    System.out.println("1- SIM.");
-                    System.out.println("2- NÃO.");
+                    System.out.println("1- SIM, CRIAR CONTA POUPANÇA.");
+                    System.out.println("2- NÃO, USAR CONTA CORRENTE.");
                     escolha = scanner.nextInt();
                     if (escolha != 1 && escolha != 2) {
                         System.out.println("Opção inválida! Você deve digitar 1 ou 2.");
@@ -165,8 +168,8 @@ public class Main {
             } else if (tipo_conta == 2) {
                 do {
                     System.out.println("Você já tem uma conta poupança, deseja criar uma conta corrente?");
-                    System.out.println("1- SIM.");
-                    System.out.println("2- NÃO.");
+                    System.out.println("1- SIM, CRIAR CONTA CORRENTE.");
+                    System.out.println("2- NÃO, USAR CONTA POUPANÇA.");
                     escolha = scanner.nextInt();
                     if (escolha != 1 && escolha != 2) {
                         System.out.println("Opção inválida! Você deve digitar 1 ou 2.");
@@ -197,6 +200,7 @@ public class Main {
     }
 
     public static void Transacoes(int conta) {
+
         Scanner scanner = new Scanner(System.in);
         scanner.useLocale(Locale.US);
         EntityManager em = EntityFactory.getEntityFactory();
