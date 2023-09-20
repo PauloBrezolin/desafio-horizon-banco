@@ -9,11 +9,23 @@ import java.util.Random;
 import java.util.Scanner;
 
 public class Main {
+
+    private static String cpf;
+
+    public static void setCpf(String cpf) {
+        Main.cpf = cpf;
+    }
+
     public static void main(String[] args) {
+        
+        String cpf = solicitarCPF();
+        setCpf(cpf);
+
         if (LoginUsuario()) {
             if (LoginConta()) {
-                System.out.println("ESCOLHER CONTA");
-                // Operacoes();
+                System.out.println("VOCE TEM UMA CONTA");
+                //int conta = EscolherConta();
+                // Operacoes(conta);
             } else {
                 CadastroConta();
             }
@@ -25,13 +37,27 @@ public class Main {
         // if LoginUsuario return false = criarPessoa().
     }
 
+    private static String solicitarCPF() {
+        Scanner scanner = new Scanner(System.in);
+        String cpf;
+
+        do {
+            System.out.println("Digite o seu CPF (SÓ NÚMEROS):");
+            cpf = scanner.nextLine();
+            if (!cpf.matches("\\d{11}")) {
+                System.out.println("CPF inválido! O CPF deve conter exatamente 11 dígitos numéricos.");
+            }
+        } while (!cpf.matches("\\d{11}"));
+        
+        return cpf;
+    }
+    
     public static void CadastroUsuario() {
         Scanner scanner = new Scanner(System.in);
         EntityManager em = EntityFactory.getEntityFactory();
 
         String nome;
         String telefone;
-        String cpf;
         System.out.println("Você ainda não está cadastrado!");
         System.out.println("Realize seu cadastro abaixo.");
 
@@ -51,42 +77,17 @@ public class Main {
             }
         } while (!telefone.matches("\\d{11}"));
 
-        do {
-            System.out.println("Digite o seu CPF (SÓ NÚMEROS):");
-            cpf = scanner.nextLine();
-            if (!cpf.matches("\\d{11}")) {
-                System.out.println("CPF inválido! O CPF deve conter exatamente 11 dígitos numéricos.");
-            }
-        } while (!cpf.matches("\\d{11}"));
-
-        scanner.close();
         EntityFactory.CadastroUsuario(nome, telefone, cpf, em);
     }
 
     public static boolean LoginUsuario() {
-        Scanner scanner = new Scanner(System.in);
         EntityManager em = EntityFactory.getEntityFactory();
 
-        String cpf;
         boolean validacaoCPF = false;
 
         System.out.println("Seja bem vindo ao Banco do Paulo!");
-        System.out.println("SE NÃO TIVER CADASTRO, DIGITE 1");
-
-        do {
-            System.out.println("Digite o seu CPF (SÓ NÚMEROS):");
-            cpf = scanner.nextLine();
-            if (cpf.matches("\\d{11}")) {
-                validacaoCPF = EntityFactory.ValidarCPF(cpf, em);
-                return validacaoCPF;
-            } else if (cpf.equals("1")) {
-                return false;
-            } else {
-                System.out.println("CPF inválido. Certifique-se de que tem exatamente 11 dígitos numéricos.");
-            }
-        } while ((!cpf.matches("\\d{11}")) || (cpf.equals("1")));
-        scanner.close();
-        return false;
+        validacaoCPF = EntityFactory.ValidarCPF(cpf, em);
+        return validacaoCPF;
     }
 
     public static void CadastroConta() {
@@ -100,19 +101,11 @@ public class Main {
         Pessoa pessoa;
         double saldo = 0;
         int tipoConta;
-        String cpf;
         System.out.println("Você ainda não tem uma conta!");
         System.out.println("Crie uma conta abaixo.");
 
-        do {
-            System.out.println("Digite o seu CPF (SÓ NÚMEROS):");
-            cpf = scanner.nextLine();
-            pessoa = EntityFactory.getPessoa(cpf, em);
-            pessoa_id = EntityFactory.getID(cpf, em);
-            if (!cpf.matches("\\d{11}")) {
-                System.out.println("CPF inválido! O CPF deve conter exatamente 11 dígitos numéricos.");
-            }
-        } while (!cpf.matches("\\d{11}"));    
+        pessoa = EntityFactory.getPessoa(cpf, em);
+        pessoa_id = EntityFactory.getID(cpf, em);
 
         do {
             System.out.println("Escolha o tipo da sua conta (1 PRA CORRENTE E 2 PRA POUPANÇA):");
@@ -125,34 +118,20 @@ public class Main {
         do {
             numero = gerador.nextInt(10000000);
         } while (!EntityFactory.validaNumeroConta(numero, em));
-        scanner.close();
         EntityFactory.CadastroConta(pessoa, numero, digito, saldo, tipoConta, em);
     }
     
     public static boolean LoginConta() {
-        Scanner scanner = new Scanner(System.in);
         EntityManager em = EntityFactory.getEntityFactory();
 
-        String cpf;
-        boolean validacaoConta = false;
-
-        System.out.println("SE NÃO TIVER UMA CONTA, DIGITE 1");
-
-        do {
-            System.out.println("Digite o seu CPF novamente (SÓ NÚMEROS):");
-            cpf = scanner.nextLine();
-            if (cpf.matches("\\d{11}")) {
-                long pessoa_id = EntityFactory.getID(cpf, em);
-                validacaoConta = EntityFactory.ValidarConta(pessoa_id, em);
-                return validacaoConta;
-            } else if (cpf.equals("1")) {
-                return false;
-            } else {
-                System.out.println("CPF inválido. Certifique-se de que tem exatamente 11 dígitos numéricos.");
-            }
-        } while ((!cpf.matches("\\d{11}")) || (cpf.equals("1")));
-        scanner.close();
-        return false;
+        long pessoa_id = EntityFactory.getID(cpf, em);
+        boolean validacaoConta = EntityFactory.ValidarConta(pessoa_id, em);
+        return validacaoConta;
     }
     
+//     public static int EscolherConta() {
+//         int numero;
+
+//         return numero;
+//     }
 }

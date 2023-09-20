@@ -44,7 +44,6 @@ public class EntityFactory {
 
         Pessoa pessoaEncontrada = pessoas.get(0);
         long id = pessoaEncontrada.getId();
-        System.out.println(id);
         return id;
     }
 
