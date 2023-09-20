@@ -22,17 +22,17 @@ public class Conta implements Serializable {
 
     private double saldo;
 
-    private int tipoConta;
+    private int tipo_conta;
 
     public Conta() {
     }
 
-    public Conta( Pessoa pessoa, int numero,  int digito, double saldo, int tipoConta) {
+    public Conta( Pessoa pessoa, int numero,  int digito, double saldo, int tipo_conta) {
         this.pessoa = pessoa;
         this.numero = numero;
         this.digito = digito;
         this.saldo = saldo;
-        this.tipoConta = tipoConta;
+        this.tipo_conta = tipo_conta;
     }
 
     public Long getId() {
@@ -67,6 +67,22 @@ public class Conta implements Serializable {
         this.saldo = saldo;
     }
 
+    public void setNumero(int numero) {
+        this.numero = numero;
+    }
+
+    public void setDigito(int digito) {
+        this.digito = digito;
+    }
+
+    public int getTipo_conta() {
+        return tipo_conta;
+    }
+
+    public void setTipo_conta(int tipo_conta) {
+        this.tipo_conta = tipo_conta;
+    }
+
     @Override
     public String toString() {
         return "Conta{" +
@@ -75,7 +91,7 @@ public class Conta implements Serializable {
                 ", numero=" + numero +
                 ", digito=" + digito +
                 ", saldo=" + saldo +
-                ", tipoConta=" + tipoConta +
+                ", tipo_conta=" + tipo_conta +
                 '}';
     }
 }
