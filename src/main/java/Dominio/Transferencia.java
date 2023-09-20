@@ -1,7 +1,5 @@
 package Dominio;
 
-import java.time.LocalDate;
-
 import javax.persistence.*;
 
 @Entity
@@ -20,9 +18,16 @@ public class Transferencia {
 
     private double valor;
 
-    private LocalDate data;
+    private String data;
 
     public Transferencia() {
+    }
+
+    public Transferencia(Conta contaOrigem, Conta contaDestino, double valor, String data) {
+        this.contaOrigem = contaOrigem;
+        this.contaDestino = contaDestino;
+        this.valor = valor;
+        this.data = data;
     }
 
     public Integer getId() {
@@ -53,11 +58,11 @@ public class Transferencia {
         this.valor = valor;
     }
 
-    public LocalDate getData() {
+    public String getData() {
         return data;
     }
 
-    public void setData(LocalDate data) {
+    public void setData(String data) {
         this.data = data;
     }
 

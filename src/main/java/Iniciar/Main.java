@@ -3,8 +3,12 @@ package Iniciar;
 import EntityFactory.EntityFactory;
 import javax.persistence.EntityManager;
 
+import Dominio.Conta;
 import Dominio.Pessoa;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -24,17 +28,13 @@ public class Main {
         if (LoginUsuario()) {
             if (LoginConta()) {
                 int conta = EscolherConta();
-                // Operacoes(conta);
+                Transacoes(conta);
             } else {
                 CadastroConta();
             }
         } else {
             CadastroUsuario();
         }
-        // if LoginUsuario return true = LoginConta() (if return false CadastroConta())
-        // if return true = Operacoes(); (Depositar, Sacar(), RealizarTrasferencia() ou
-        // ConsultarSaldo())
-        // if LoginUsuario return false = criarPessoa().
     }
 
     private static String solicitarCPF() {
@@ -111,7 +111,9 @@ public class Main {
         pessoa_id = EntityFactory.getID(cpf, em);
 
         do {
-            System.out.println("Escolha o tipo da sua conta (1 PRA CORRENTE E 2 PRA POUPANÇA):");
+            System.out.println("Escolha o tipo da sua conta:");
+            System.out.println("1- CORRENTE.");
+            System.out.println("2- POUPANÇA.");
             tipo_conta = scanner.nextInt();
             if (tipo_conta != 1 && tipo_conta != 2) {
                 System.out.println("Tipo de conta inválido! Você deve digitar 1 ou 2.");
@@ -147,7 +149,9 @@ public class Main {
         if (numeroDeContas == 1) {
             if (tipo_conta == 1) {
                 do {
-                    System.out.println("Você já tem uma conta corrente, deseja criar uma conta poupança? (1 = SIM, 2 = NÃO)");
+                    System.out.println("Você já tem uma conta corrente, deseja criar uma conta poupança?");
+                    System.out.println("1- SIM.");
+                    System.out.println("2- NÃO.");
                     escolha = scanner.nextInt();
                     if (escolha != 1 && escolha != 2) {
                         System.out.println("Opção inválida! Você deve digitar 1 ou 2.");
@@ -160,7 +164,9 @@ public class Main {
                 }
             } else if (tipo_conta == 2) {
                 do {
-                    System.out.println("Você já tem uma conta poupança, deseja criar uma conta corrente? (1 = SIM, 2 = NÃO)");
+                    System.out.println("Você já tem uma conta poupança, deseja criar uma conta corrente?");
+                    System.out.println("1- SIM.");
+                    System.out.println("2- NÃO.");
                     escolha = scanner.nextInt();
                     if (escolha != 1 && escolha != 2) {
                         System.out.println("Opção inválida! Você deve digitar 1 ou 2.");
@@ -176,7 +182,9 @@ public class Main {
             numero = EntityFactory.getNumeroConta(pessoa_id, em);
         } else if (numeroDeContas == 2) {
             do {
-                System.out.println("Você tem duas contas, qual deseja usar? (1 PRA CORRENTE E 2 PRA POUPANÇA)");
+                System.out.println("Você tem duas contas, qual deseja usar?");
+                System.out.println("1- CORRENTE.");
+                System.out.println("2- POUPANÇA.");
                 tipo_conta = scanner.nextInt();
                 numero = EntityFactory.getNumeroContaByTipo(pessoa_id, tipo_conta, em);
                 if (tipo_conta != 1 && tipo_conta != 2) {
@@ -186,5 +194,94 @@ public class Main {
         }
 
         return numero;
+    }
+
+    public static void Transacoes(int conta) {
+        Scanner scanner = new Scanner(System.in);
+        scanner.useLocale(Locale.US);
+        EntityManager em = EntityFactory.getEntityFactory();
+
+        int escolha;
+        double valor;
+        double saque;
+        double deposito;
+        long id_conta = EntityFactory.getIdContaByNumero(conta, em);
+        
+        do {
+            double saldo = EntityFactory.consultarSaldo(conta, em);
+            do {
+                System.out.println("Bem vindo ao menu de transações!");
+                System.out.println("Você está usando a conta " + conta + "!");
+
+                System.out.println("1 - CONSULTAR SALDO.");
+                System.out.println("2 - DEPOSITAR.");
+                System.out.println("3 - SACAR.");
+                System.out.println("4 - REALIZAR TRANSFERÊNCIA.");
+                System.out.println("5 - SAIR.");
+                escolha = scanner.nextInt();
+                if (escolha != 1 && escolha != 2 && escolha != 3 && escolha != 4 && escolha != 5) {
+                    System.out.println("Opção inválida! Você deve digitar 1, 2, 3 ou 4.");
+                }
+            } while (escolha != 1 && escolha != 2 && escolha != 3 && escolha != 4 && escolha != 5);
+
+            switch (escolha) {
+                case 1:
+                    System.out.println("Seu saldo: R$" + saldo + "!");
+                    break;
+                case 2:
+                    System.out.println("Digite o valor que deseja depositar: ");
+                    deposito = scanner.nextDouble();
+                    valor = saldo + deposito;
+                    EntityFactory.atualizarSaldo(valor, id_conta, em);
+                    System.out.println("Transação bem secedida!");
+                    break;
+                case 3:
+                    System.out.println("Digite o valor que deseja sacar: ");
+                    saque = scanner.nextDouble();
+                    if (saque <= saldo) {
+                    valor = saldo - saque;
+                    EntityFactory.atualizarSaldo(valor, id_conta, em);
+                    System.out.println("Transação bem secedida!");
+                    }else if (saque > saldo) {
+                        System.out.println("Saldo insuficiente! Saque um valor menor ou igual ao saldo.");
+                        System.out.println("Seu saldo é: R$" + saldo + "!");
+                    }
+                    break;
+                case 4:
+                    int numero_conta_origem = conta;
+                    System.out.println("Digite o número da conta que deseja transferir: ");
+                    int numero_conta_destino = scanner.nextInt();
+
+                    System.out.println("Digite o valor que deseja transferir: ");
+                    valor = scanner.nextDouble();
+
+                    double saldo_origem = EntityFactory.consultarSaldo(numero_conta_origem, em);
+                    double saldo_destino = EntityFactory.consultarSaldo(numero_conta_destino, em);
+
+                    Conta conta_origem = EntityFactory.getConta(numero_conta_origem, em);
+                    Conta conta_destino = EntityFactory.getConta(numero_conta_destino, em);
+
+                    long id_origem = EntityFactory.getIdContaByNumero(numero_conta_origem, em);
+                    long id_destino = EntityFactory.getIdContaByNumero(numero_conta_destino, em);
+
+                    LocalDate data = LocalDate.now();
+                    DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+                    String dataFormatada = data.format(formato);
+
+                    if (valor <= saldo_origem) {
+                        saldo_origem = saldo_origem - valor;
+                        EntityFactory.atualizarSaldo(saldo_origem, id_origem, em);
+                        saldo_destino = saldo_destino + valor;
+                        EntityFactory.atualizarSaldo(saldo_destino, id_destino, em);
+                        EntityFactory.registrarTrasferencia(conta_origem, conta_destino, valor, dataFormatada, em);
+                    }else if (valor > saldo_origem) {
+                        System.out.println("Saldo insuficiente! Saque um valor menor ou igual ao saldo.");
+                        System.out.println("Seu saldo é: R$" + saldo_origem + "!");
+                    }
+                    break;
+                case 5:
+                    break;
+            }
+        }while(escolha != 5);
     }
 }
